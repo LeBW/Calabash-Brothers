@@ -2,7 +2,9 @@ import java.awt.*;
 
 public class Thing2D {
 
-    private final int SPACE = 60;
+    protected final int SPACE = 60;
+    protected final int w = SPACE*15;
+    protected final int h = SPACE*8 + SPACE/2;
 
     private int x;
     private int y;

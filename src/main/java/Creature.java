@@ -1,5 +1,5 @@
 public abstract class Creature extends Thing2D{
-    private Field field;
+    protected Field field;
     public Creature(int x, int y, Field field) {
         super(x, y);
         this.field = field;
@@ -11,8 +11,37 @@ public abstract class Creature extends Thing2D{
     boolean isAlive = true;   //是否还活着
 
     //生物移动函数
-    abstract public boolean moveUp();
-    abstract public boolean moveDown();
-    abstract public boolean moveLeft();
-    abstract public boolean moveRight();
+    public boolean moveUp() {
+        if(field.isAvailable(x(), y()-SPACE)) {
+            setY(y() - SPACE);
+            return true;
+        }
+        else return false;
+    }
+    public boolean moveDown() {
+        if(field.isAvailable(x(), y()+SPACE)) {
+            setY(y() + SPACE);
+            return true;
+        }
+        else return false;
+    }
+    public boolean moveLeft() {
+        orientation = Orientation.Left;
+        if(field.isAvailable(x()-SPACE, y())) {
+            setX(x() - SPACE);
+            return true;
+        }
+        else return false;
+    }
+    public boolean moveRight() {
+        orientation = Orientation.Right;
+        if(field.isAvailable(x()+SPACE, y())) {
+            setX(x() + SPACE);
+            return true;
+        }
+        else return false;
+    }
+    public int distanceTo(Creature creature) {
+        return Math.abs(x() - creature.x()) + Math.abs(y() - creature.y());
+    }
 }

@@ -5,6 +5,9 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Field extends JPanel{
     //每一个单位所占的像素数
@@ -13,12 +16,14 @@ public class Field extends JPanel{
     //界面的总宽度和长度
     private final int w = SPACE*15;
     private final int h = SPACE*8 + SPACE/2;
+    //线程池
+    ExecutorService executorService;
     //thing2D的声明
     private ArrayList tiles = new ArrayList();
     private ArrayList<Huluwa> huluwas = new ArrayList<>();
     private GrandFather grandFather;
     private Snake snake;
-    private Scorption scorption;
+    private Scorpion scorpion;
     private ArrayList<Minion> minions = new ArrayList<>();
 
     private boolean completed = false;
@@ -32,26 +37,26 @@ public class Field extends JPanel{
                     "...3.......m...\n" +
                     "..4.........m..\n" +
                     ".............m."  ;
+    //为方便葫芦娃初始化而设置的一个Map
+    public final Map<Character, String> rankMap = new HashMap<>();
+
     public Field() {
+        rankMap.put('0', "red");
+        rankMap.put('1', "orange");
+        rankMap.put('2', "yellow");
+        rankMap.put('3', "green");
+        rankMap.put('4', "cyan");
+        rankMap.put('5', "blue");
+        rankMap.put('6', "purple");
         addKeyListener(new TAdapter());
         setFocusable(true);
         initWorld();
     }
 
-    public int getBoardWidth() { return this.w;}
 
-    public int getBoardHeight() { return this.h;
-    }
     private final void initWorld() {
-        //为方便葫芦娃初始化而设置的一个Map
-        final Map<Character, String> rankMap = new HashMap<>();
-        rankMap.put('0', "red-right.png");
-        rankMap.put('1', "orange-right.png");
-        rankMap.put('2', "yellow-right.png");
-        rankMap.put('3', "green-right.png");
-        rankMap.put('4', "cyan-right.png");
-        rankMap.put('5', "blue-right.png");
-        rankMap.put('6', "purple-right.png");
+
+        executorService  = Executors.newCachedThreadPool();
        //初始化草地
         for(int x = 0; x < w; x += SPACE) {
            for(int y = SPACE/2; y < h; y += SPACE) {
@@ -72,7 +77,7 @@ public class Field extends JPanel{
            }
            else if (Character.isDigit(item)) {
                int temp = item - '0';
-               huluwas.add(new Huluwa(x, y, this, temp, rankMap.get(item)));
+               huluwas.add(new Huluwa(x, y, this, temp, rankMap.get(item)+"-right.png"));
                x += SPACE;
            }
            else if (item == 'g') {
@@ -84,7 +89,7 @@ public class Field extends JPanel{
                x += SPACE;
            }
            else if (item == 'n') {
-               scorption = new Scorption(x, y, this);
+               scorpion = new Scorpion(x, y, this);
                x += SPACE;
            }
            else if (item == 'm') {
@@ -101,18 +106,19 @@ public class Field extends JPanel{
     public void paint(Graphics g) {
         super.paint(g);
         buildWorld(g);
+
     }
 
     private void buildWorld(Graphics g) {
         g.setColor(new Color(255, 255, 255));
         g.fillRect(0, 0, getWidth(), getHeight());
-
+        g.drawImage(new ImageIcon(getClass().getClassLoader().getResource("background.png")).getImage(), 0, 0, this);
         ArrayList world = new ArrayList();
         world.addAll(tiles);
         world.addAll(huluwas);
         world.add(grandFather);
         world.add(snake);
-        world.add(scorption);
+        world.add(scorpion);
         world.addAll(minions);
         for(int i = 0; i < world.size(); i++) {
             Thing2D item = (Thing2D) world.get(i);
@@ -123,16 +129,16 @@ public class Field extends JPanel{
                 g.drawImage(item.getImage(), item.x() + 10, item.y(), this);
             }
             else if(item instanceof GrandFather) {
-                g.drawImage(item.getImage(), item.x() + 10, item.y(), this);
+                g.drawImage(item.getImage(), item.x(), item.y() - 10, this);
             }
             else if(item instanceof Snake) {
                 g.drawImage(item.getImage(), item.x() + 10, item.y(), this);
             }
-            else if(item instanceof Scorption) {
+            else if(item instanceof Scorpion) {
                 g.drawImage(item.getImage(), item.x(), item.y(), this);
             }
             else if(item instanceof Minion) {
-                g.drawImage(item.getImage(), item.x() + 10, item.y(), this);
+                g.drawImage(item.getImage(), item.x() + 5, item.y() + 10, this);
             }
             else {
                 //TODO
@@ -152,7 +158,13 @@ public class Field extends JPanel{
             }
             int key = e.getKeyCode();
             if(key == KeyEvent.VK_SPACE) {
-                //TODO Start
+                for(Huluwa huluwa: huluwas)
+                    executorService.execute(huluwa);
+                executorService.execute(grandFather);
+                executorService.execute(snake);
+                executorService.execute(scorpion);
+                for(Minion minion: minions)
+                    executorService.execute(minion);
             }
             else if (key == KeyEvent.VK_R) {
                 restartLevel();
@@ -163,9 +175,150 @@ public class Field extends JPanel{
 
     private void restartLevel() {
         tiles.clear();
+        huluwas.clear();
+        minions.clear();
+        executorService.shutdownNow();
         initWorld();
         if(completed) {
             completed = false;
         }
+    }
+
+    public int getBoardWidth() {
+        return this.w;
+    }
+
+    public int getBoardHeight() {
+        return this.h;
+    }
+    public Snake getSnake() {
+        return snake;
+    }
+    public Scorpion getScorpion() {
+        return scorpion;
+    }
+
+    public GrandFather getGrandFather() {
+        return grandFather;
+    }
+
+    public ArrayList<Minion> getMinions() {
+        return minions;
+    }
+
+    public ArrayList<Huluwa> getHuluwas() {
+        return huluwas;
+    }
+
+    ///判断坐标x，y是否能够进入
+    public boolean isAvailable(int x,int y) {
+        if (x < 0 || x >= w || y < SPACE/2 || y >= h)
+            return false;
+        for(Huluwa huluwa: huluwas) {
+            if (huluwa.isAlive && huluwa.x() == x && huluwa.y() == y)
+                return false;
+        }
+        if (snake.isAlive && snake.x() == x && snake.y() == y)
+            return false;
+        if (grandFather.isAlive && grandFather.x() == x && grandFather.y() == y)
+            return false;
+        if (scorpion.isAlive && scorpion.x() == x && scorpion.y() == y)
+            return false;
+        for (Minion minion: minions) {
+            if(minion.isAlive && minion.x() == x && minion.y() == y)
+                return false;
+        }
+        return true;
+    }
+    //返回坐标x，y的生物
+    public Creature creatureAt(int x, int y) {
+        if(x < 0 || x >= w || y < SPACE/2 || y >= h)
+            return null;
+        for(Huluwa huluwa: huluwas) {
+            if(huluwa.x() == x && huluwa.y() == y)
+                return huluwa;
+        }
+        if (snake.x() == x && snake.y() == y)
+            return snake;
+        if (grandFather.x() == x && grandFather.y() == y)
+            return grandFather;
+        if (scorpion.x() == x && scorpion.y() == y)
+            return scorpion;
+        for (Minion minion: minions) {
+            if(minion.x() == x && minion.y() == y)
+                return minion;
+        }
+        return null;
+    }
+    public void startWarBetween(DecentRole a, VillainRole b) {
+        a.isInBattle = true;
+        b.isInBattle = true;
+
+        Random random = new Random();
+
+        //正派80%胜利，反派20%胜利
+        int flag = random.nextInt(10);
+        if(flag <= 7) {
+            b.isAlive = false;
+            switch (b.getClass().getSimpleName()) {
+                case "Snake":
+                    b.setImage(new ImageIcon(getClass().getClassLoader().getResource("snake-dead.png")).getImage());
+                    break;
+                case "Scorpion":
+                    b.setImage(new ImageIcon(getClass().getClassLoader().getResource("scorpion-dead.png")).getImage());
+                    break;
+                case "Minion":
+                    b.setImage(new ImageIcon(getClass().getClassLoader().getResource("minion-dead.png")).getImage());
+                    break;
+                default:
+                    System.err.println();
+            }
+        }
+        else {
+            a.isAlive = false;
+            switch (a.getClass().getSimpleName()) {
+                case "GrandFather":
+                    a.setImage(new ImageIcon(getClass().getClassLoader().getResource("grandfather-dead.png")).getImage());
+                    break;
+                case "Huluwa":
+                    Huluwa huluwa = (Huluwa)a;
+                    char temp = (char)(huluwa.getRank() + '0');
+                    String imageName = rankMap.get(temp) + "-dead.png";
+                    System.out.println(imageName);
+                    huluwa.setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
+                    break;
+            }
+        }
+
+        try {
+            wait(1000);
+            repaint();
+        } catch (Exception e) {
+
+        }
+        a.isInBattle = false;
+        b.isInBattle = false;
+        if (allVillainRoleIsDead() || allDecentRoleIsDead()) {
+            completed = true;
+            executorService.shutdownNow();
+        }
+    }
+    private boolean allVillainRoleIsDead() {
+        if (snake.isAlive || scorpion.isAlive)
+            return false;
+        for(Minion minion: minions) {
+            if (minion.isAlive)
+                return false;
+        }
+        return true;
+    }
+    private boolean allDecentRoleIsDead() {
+        if (grandFather.isAlive)
+            return false;
+        for(Huluwa huluwa: huluwas) {
+            if (huluwa.isAlive)
+                return false;
+        }
+        return true;
     }
 }

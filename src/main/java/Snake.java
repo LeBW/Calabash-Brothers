@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
+import java.util.Random;
 
 public class Snake extends VillainRole implements Runnable{
 
@@ -13,28 +14,21 @@ public class Snake extends VillainRole implements Runnable{
         this.setImage(image);
     }
 
-    @Override
-    public boolean moveUp() {
-        return false;
-    }
 
-    @Override
-    public boolean moveDown() {
-        return false;
-    }
-
-    @Override
-    public boolean moveLeft() {
-        return false;
-    }
-
-    @Override
-    public boolean moveRight() {
-        return false;
-    }
 
     @Override
     public void run() {
+        while (!Thread.interrupted()) {
+            if(isAlive && !isInBattle) {
+                Random random = new Random();
+                moveLeft();
+                try {
+                    Thread.sleep(1000 + random.nextInt(1000));
+                    field.repaint();
+                } catch (Exception e) {
 
+                }
+            }
+        }
     }
 }
