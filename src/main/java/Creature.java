@@ -41,7 +41,17 @@ public abstract class Creature extends Thing2D{
         }
         else return false;
     }
+    //距另一个生物的距离
     public int distanceTo(Creature creature) {
         return Math.abs(x() - creature.x()) + Math.abs(y() - creature.y());
+    }
+    public void setInBattle(boolean isInBattle) {
+        this.isInBattle = isInBattle;
+    }
+    public void setAlive(boolean isAlive) {
+        this.isAlive = isAlive;
+    }
+    public void startWarWith(Creature creature) {
+
     }
 }

@@ -13,8 +13,12 @@ public class Scorpion extends VillainRole implements Runnable{
         setImage(image);
     }
 
-
-
+    @Override
+    public void setAlive(boolean isAlive) {
+        super.setAlive(isAlive);
+        if (!isAlive)
+            setImage(new ImageIcon(getClass().getClassLoader().getResource("scorpion-dead.png")).getImage());
+    }
     @Override
     public void run() {
         while(!Thread.interrupted()) {
@@ -25,7 +29,7 @@ public class Scorpion extends VillainRole implements Runnable{
                     Thread.sleep(random.nextInt(1000) + 1000);
                     field.repaint();
                 } catch (Exception e) {
-
+                    System.out.println("Scorpion: " + e);
                 }
 
             }

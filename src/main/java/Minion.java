@@ -28,6 +28,13 @@ public class Minion extends VillainRole implements Runnable{
     }
 
     @Override
+    public void setAlive(boolean isAlive) {
+        super.setAlive(isAlive);
+        if (!isAlive)
+            setImage(new ImageIcon(getClass().getClassLoader().getResource("minion-dead.png")).getImage());
+    }
+
+    @Override
     public void run() {
         while(!Thread.interrupted()) {
             if (isAlive && !isInBattle) {
@@ -49,10 +56,10 @@ public class Minion extends VillainRole implements Runnable{
                 }
                 Creature creature = field.creatureAt(x() + SPACE, y());
                 if (creature instanceof DecentRole && creature.isAlive && !creature.isInBattle)
-                    field.startWarBetween((DecentRole)creature,this);
+                    startWarWith(creature);
                 creature = field.creatureAt(x() - SPACE, y());
                 if (creature instanceof DecentRole && creature.isAlive && !creature.isInBattle)
-                    field.startWarBetween((DecentRole)creature, this);
+                    startWarWith(creature);
             }
         }
     }

@@ -14,7 +14,12 @@ public class Snake extends VillainRole implements Runnable{
         this.setImage(image);
     }
 
-
+    @Override
+    public void setAlive(boolean isAlive) {
+        super.setAlive(isAlive);
+        if (!isAlive)
+            setImage(new ImageIcon(getClass().getClassLoader().getResource("snake-dead.png")).getImage());
+    }
 
     @Override
     public void run() {
@@ -26,7 +31,7 @@ public class Snake extends VillainRole implements Runnable{
                     Thread.sleep(1000 + random.nextInt(1000));
                     field.repaint();
                 } catch (Exception e) {
-
+                    System.out.println("Snake: " + e);
                 }
             }
         }

@@ -53,53 +53,40 @@ public class Huluwa extends DecentRole implements Runnable{
                     field.repaint();
 
                 } catch (Exception e) {
-
+                    System.out.println("hulu"+ rank + e);
                 }
                 Creature creature = field.creatureAt(x() + SPACE, y());
                 if (creature instanceof VillainRole && creature.isAlive)
-                    field.startWarBetween(this, (VillainRole) creature);
+                    startWarWith(creature);
                 creature = field.creatureAt(x() - SPACE, y());
                 if (creature instanceof VillainRole && creature.isAlive)
-                    field.startWarBetween(this, (VillainRole)creature);
+                    startWarWith(creature);
             }
         }
     }
-    private void moveToVillainRole() {
-        int minDistance = Integer.MAX_VALUE;
-        VillainRole nearestEnemy = null;
-        if (field.getSnake().isAlive && distanceTo(field.getSnake()) < minDistance) {
-            minDistance = distanceTo(field.getSnake());
-            nearestEnemy = field.getSnake();
-        }
-        if (field.getScorpion().isAlive && distanceTo(field.getScorpion()) < minDistance) {
-            minDistance = distanceTo(field.getScorpion());
-            nearestEnemy = field.getScorpion();
-        }
-        for(Minion minion: field.getMinions()) {
-            if (minion.isAlive && distanceTo(minion) < minDistance) {
-                minDistance = distanceTo(minion);
-                nearestEnemy = minion;
-            }
-        }
-        if (nearestEnemy != null) {
 
-            if (nearestEnemy.y() > y()) {
-                moveDown();
-                return;
-            }
-            else if (nearestEnemy.y() < y()) {
-                moveUp();
-                return;
-            }
-            else if (nearestEnemy.x() > x())
-            {
-                moveRight();
-                return;
-            }
-            else if (nearestEnemy.x() < x()) {
-                moveLeft();
-                return;
-            }
+    @Override
+    public void setInBattle(boolean isInBattle) {
+        super.setInBattle(isInBattle);
+        if (isInBattle) {
+            String imageName = field.rankMap.get((char) ('0' + rank)) + "-attack.png";
+            setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
+        }
+        else if (isAlive){
+            String imageName = field.rankMap.get((char) ('0' + rank)) + "-right.png";
+            setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
         }
     }
+
+    @Override
+    public void setAlive(boolean isAlive) {
+        super.setAlive(isAlive);
+        if (!isAlive) {
+            String imageName = field.rankMap.get((char) ('0' + rank)) + "-dead.png";
+            System.out.println(imageName);
+            setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
+        }
+    }
+
+
 }

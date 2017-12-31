@@ -150,6 +150,13 @@ public class Field extends JPanel{
         }
     }
 
+    public void checkForEnd() {
+        if (allVillainRoleIsDead() || allDecentRoleIsDead()) {
+            completed = true;
+            executorService.shutdownNow();
+        }
+    }
+
     private class TAdapter extends KeyAdapter{
 
         public void keyPressed(KeyEvent e) {
@@ -235,67 +242,38 @@ public class Field extends JPanel{
         if(x < 0 || x >= w || y < SPACE/2 || y >= h)
             return null;
         for(Huluwa huluwa: huluwas) {
-            if(huluwa.x() == x && huluwa.y() == y)
+            if(huluwa.isAlive && huluwa.x() == x && huluwa.y() == y)
                 return huluwa;
         }
-        if (snake.x() == x && snake.y() == y)
+        if (snake.isAlive && snake.x() == x && snake.y() == y)
             return snake;
-        if (grandFather.x() == x && grandFather.y() == y)
+        if (grandFather.isAlive && grandFather.x() == x && grandFather.y() == y)
             return grandFather;
-        if (scorpion.x() == x && scorpion.y() == y)
+        if (scorpion.isAlive && scorpion.x() == x && scorpion.y() == y)
             return scorpion;
         for (Minion minion: minions) {
-            if(minion.x() == x && minion.y() == y)
+            if(minion.isAlive && minion.x() == x && minion.y() == y)
                 return minion;
         }
         return null;
     }
+    @Deprecated
     public void startWarBetween(DecentRole a, VillainRole b) {
         a.isInBattle = true;
         b.isInBattle = true;
 
         Random random = new Random();
 
-        //正派80%胜利，反派20%胜利
+        //正派60%胜利，反派40%胜利
         int flag = random.nextInt(10);
-        if(flag <= 7) {
-            b.isAlive = false;
-            switch (b.getClass().getSimpleName()) {
-                case "Snake":
-                    b.setImage(new ImageIcon(getClass().getClassLoader().getResource("snake-dead.png")).getImage());
-                    break;
-                case "Scorpion":
-                    b.setImage(new ImageIcon(getClass().getClassLoader().getResource("scorpion-dead.png")).getImage());
-                    break;
-                case "Minion":
-                    b.setImage(new ImageIcon(getClass().getClassLoader().getResource("minion-dead.png")).getImage());
-                    break;
-                default:
-                    System.err.println();
-            }
-        }
-        else {
-            a.isAlive = false;
-            switch (a.getClass().getSimpleName()) {
-                case "GrandFather":
-                    a.setImage(new ImageIcon(getClass().getClassLoader().getResource("grandfather-dead.png")).getImage());
-                    break;
-                case "Huluwa":
-                    Huluwa huluwa = (Huluwa)a;
-                    char temp = (char)(huluwa.getRank() + '0');
-                    String imageName = rankMap.get(temp) + "-dead.png";
-                    System.out.println(imageName);
-                    huluwa.setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
-                    break;
-            }
-        }
 
+        /*
         try {
             wait(1000);
             repaint();
         } catch (Exception e) {
-
-        }
+            System.out.println(a.getClass().getSimpleName() + b.getClass().getSimpleName() + e);
+        }*/
         a.isInBattle = false;
         b.isInBattle = false;
         if (allVillainRoleIsDead() || allDecentRoleIsDead()) {
