@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Random;
 
-public class Scorpion extends VillainRole implements Runnable, Serializable{
+public class Scorpion extends VillainRole implements Runnable {
     public Scorpion(int x, int y, Field field) {
         super(x, y, field, "scorpion-left.png");
 

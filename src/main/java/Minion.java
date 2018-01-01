@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Random;
 
-public class Minion extends VillainRole implements Runnable, Serializable{
+public class Minion extends VillainRole implements Runnable {
     public Minion(int x, int y, Field field) {
         super(x, y, field, "minion-left.png");
 

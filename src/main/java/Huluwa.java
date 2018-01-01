@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Random;
 
-public class Huluwa extends DecentRole implements Runnable, Serializable {
+public class Huluwa extends DecentRole implements Runnable {
     private int rank;  //七个葫芦娃的排行
 
     public Huluwa(int x, int y, Field field, int rank, String imageName) {

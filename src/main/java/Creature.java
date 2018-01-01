@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.io.Serializable;
 
-public abstract class Creature extends Thing2D implements Serializable{
+public abstract class Creature extends Thing2D{
     protected transient Field field;
     public Creature(int x, int y, Field field, String imageName) {
         super(x, y);
@@ -50,7 +50,8 @@ public abstract class Creature extends Thing2D implements Serializable{
         String[] arr = string.split(" ");
         setX(Integer.parseInt(arr[0]));
         setY(Integer.parseInt(arr[1]));
-        setImage(new ImageIcon(getClass().getClassLoader().getResource(arr[2])).getImage());
+        imageName = arr[2];
+        setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
     }
     //距另一个生物的距离
     public int distanceTo(Creature creature) {

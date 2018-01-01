@@ -5,7 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class GrandFather extends DecentRole implements Runnable, Serializable{
+public class GrandFather extends DecentRole implements Runnable {
     public GrandFather(int x, int y, Field field) {
         super(x, y, field, "grandfather-right.png");
 
