@@ -1,11 +1,15 @@
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.io.*;
+import java.security.Key;
+import java.security.spec.ECField;
+import java.util.*;
+import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,7 +21,10 @@ public class Field extends JPanel{
     private final int w = SPACE*15;
     private final int h = SPACE*8 + SPACE/2;
     //线程池
-    ExecutorService executorService;
+    private ExecutorService executorService;
+    //输出流声明
+    private BufferedWriter bufferedWriter;
+    private Timer timer = new Timer();
     //thing2D的声明
     private ArrayList tiles = new ArrayList();
     private ArrayList<Huluwa> huluwas = new ArrayList<>();
@@ -154,17 +161,34 @@ public class Field extends JPanel{
         if (allVillainRoleIsDead() || allDecentRoleIsDead()) {
             completed = true;
             executorService.shutdownNow();
+            timer.cancel();
+            try {
+                bufferedWriter.close();
+            } catch (Exception e) {
+                System.out.println("Close objectOutputStream: " + e);
+            }
         }
     }
-
+    public boolean isCompleted() {
+        return completed;
+    }
+    private Field getOuter() {
+        return this;
+    }
     private class TAdapter extends KeyAdapter{
 
         public void keyPressed(KeyEvent e) {
-            if(completed) {
-                return;
-            }
             int key = e.getKeyCode();
             if(key == KeyEvent.VK_SPACE) {
+
+                String fileName = System.getProperty("user.dir") + "/record.txt";
+                try {
+                    bufferedWriter = new BufferedWriter(new FileWriter(fileName));
+                } catch (Exception exception) {
+                    System.out.println("Initialize objectOutputStream: " + exception);
+                }
+                timer = new Timer();
+                timer.scheduleAtFixedRate(new RecordTask(getOuter(),  bufferedWriter), 0, 500);
                 for(Huluwa huluwa: huluwas)
                     executorService.execute(huluwa);
                 executorService.execute(grandFather);
@@ -176,6 +200,17 @@ public class Field extends JPanel{
             else if (key == KeyEvent.VK_R) {
                 restartLevel();
             }
+            else if (key == KeyEvent.VK_L) {
+                JFileChooser jFileChooser = new JFileChooser(System.getProperty("user.dir"));
+                int returnValue = jFileChooser.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = jFileChooser.getSelectedFile();
+                    System.out.println(selectedFile.getName());
+                    if (!selectedFile.getName().equals("record.txt"))
+                        return;
+                    new ReplayTask(selectedFile).start();
+                }
+            }
         }
 
     }
@@ -186,9 +221,11 @@ public class Field extends JPanel{
         minions.clear();
         executorService.shutdownNow();
         initWorld();
+
         if(completed) {
             completed = false;
         }
+        repaint();
     }
 
     public int getBoardWidth() {
@@ -298,5 +335,46 @@ public class Field extends JPanel{
                 return false;
         }
         return true;
+    }
+    //inner class
+
+    class ReplayTask extends Thread{
+
+        private  BufferedReader bufferedReader;
+        ReplayTask(File file) {
+            try {
+                bufferedReader = new BufferedReader(new FileReader(file));
+            } catch (Exception e) {
+                System.out.println("Initialize bufferedReader: " + e);
+            }
+        }
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    for (Huluwa huluwa: huluwas) {
+                        String string = bufferedReader.readLine();
+                        huluwa.readFromLine(string);
+                    }
+                    grandFather.readFromLine(bufferedReader.readLine());
+                    snake.readFromLine(bufferedReader.readLine());
+                    scorpion.readFromLine(bufferedReader.readLine());
+                    for (Minion minion: minions)
+                        minion.readFromLine(bufferedReader.readLine());
+                    repaint();
+                    sleep(500);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    bufferedReader.close();
+                } catch (Exception e1) {
+                    System.out.println(e1);
+                }
+                restartLevel();
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }

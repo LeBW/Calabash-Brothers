@@ -1,11 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Random;
 
-public class Scorpion extends VillainRole implements Runnable{
+public class Scorpion extends VillainRole implements Runnable, Serializable{
     public Scorpion(int x, int y, Field field) {
-        super(x, y, field);
+        super(x, y, field, "scorpion-left.png");
 
         URL loc = getClass().getClassLoader().getResource("scorpion-left.png");
         ImageIcon iia = new ImageIcon(loc);
@@ -16,8 +17,10 @@ public class Scorpion extends VillainRole implements Runnable{
     @Override
     public void setAlive(boolean isAlive) {
         super.setAlive(isAlive);
-        if (!isAlive)
-            setImage(new ImageIcon(getClass().getClassLoader().getResource("scorpion-dead.png")).getImage());
+        if (!isAlive) {
+            imageName = "scorpion-dead.png";
+            setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
+        }
     }
     @Override
     public void run() {
@@ -30,6 +33,7 @@ public class Scorpion extends VillainRole implements Runnable{
                     field.repaint();
                 } catch (Exception e) {
                     System.out.println("Scorpion: " + e);
+                    Thread.currentThread().interrupt();
                 }
 
             }

@@ -1,8 +1,8 @@
 import java.util.Random;
 
 public abstract class VillainRole extends Creature{
-    public VillainRole(int x, int y, Field field) {
-        super(x, y, field);
+    public VillainRole(int x, int y, Field field, String imageName) {
+        super(x, y, field, imageName);
         orientation = Orientation.Left;
     }
     @Override
@@ -24,6 +24,7 @@ public abstract class VillainRole extends Creature{
                 field.repaint();
             } catch (Exception e) {
                 System.out.println(e);
+                Thread.currentThread().interrupt();
             } finally {
                 setInBattle(false);
                 creature.setInBattle(false);

@@ -1,13 +1,14 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Random;
 
-public class Huluwa extends DecentRole implements Runnable{
+public class Huluwa extends DecentRole implements Runnable, Serializable {
     private int rank;  //七个葫芦娃的排行
 
     public Huluwa(int x, int y, Field field, int rank, String imageName) {
-        super(x, y, field);
+        super(x, y, field, imageName);
 
         this.rank = rank;
         URL loc = this.getClass().getClassLoader().getResource(imageName);
@@ -26,6 +27,7 @@ public class Huluwa extends DecentRole implements Runnable{
             char temp = (char)('0'+rank);
    //         System.out.println(temp + "-left.png");
             String imageName = field.rankMap.get(temp) + "-left.png";
+            this.imageName = imageName;
             setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
         }
         return super.moveLeft();
@@ -36,6 +38,7 @@ public class Huluwa extends DecentRole implements Runnable{
         if (orientation == Orientation.Left) {
             char temp = (char)('0'+rank);
             String imageName = field.rankMap.get(temp) + "-right.png";
+            this.imageName = imageName;
             setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
         }
         return super.moveRight();
@@ -54,6 +57,7 @@ public class Huluwa extends DecentRole implements Runnable{
 
                 } catch (Exception e) {
                     System.out.println("hulu"+ rank + e);
+                    Thread.currentThread().interrupt();
                 }
                 Creature creature = field.creatureAt(x() + SPACE, y());
                 if (creature instanceof VillainRole && creature.isAlive)
@@ -70,10 +74,12 @@ public class Huluwa extends DecentRole implements Runnable{
         super.setInBattle(isInBattle);
         if (isInBattle) {
             String imageName = field.rankMap.get((char) ('0' + rank)) + "-attack.png";
+            this.imageName = imageName;
             setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
         }
         else if (isAlive){
             String imageName = field.rankMap.get((char) ('0' + rank)) + "-right.png";
+            this.imageName = imageName;
             setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
         }
     }
@@ -83,10 +89,10 @@ public class Huluwa extends DecentRole implements Runnable{
         super.setAlive(isAlive);
         if (!isAlive) {
             String imageName = field.rankMap.get((char) ('0' + rank)) + "-dead.png";
+            this.imageName = imageName;
             System.out.println(imageName);
             setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
         }
     }
-
 
 }

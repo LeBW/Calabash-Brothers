@@ -1,12 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Random;
 
-public class Snake extends VillainRole implements Runnable{
+public class Snake extends VillainRole implements Runnable, Serializable{
 
     public Snake(int x, int y, Field field) {
-        super(x, y, field);
+        super(x, y, field, "snake-left.png");
 
         URL loc = this.getClass().getClassLoader().getResource("snake-left.png");
         ImageIcon iia = new ImageIcon(loc);
@@ -17,8 +18,10 @@ public class Snake extends VillainRole implements Runnable{
     @Override
     public void setAlive(boolean isAlive) {
         super.setAlive(isAlive);
-        if (!isAlive)
-            setImage(new ImageIcon(getClass().getClassLoader().getResource("snake-dead.png")).getImage());
+        if (!isAlive) {
+            imageName = "snake-dead.png";
+            setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
+        }
     }
 
     @Override
@@ -32,6 +35,7 @@ public class Snake extends VillainRole implements Runnable{
                     field.repaint();
                 } catch (Exception e) {
                     System.out.println("Snake: " + e);
+                    Thread.currentThread().interrupt();
                 }
             }
         }

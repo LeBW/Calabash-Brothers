@@ -1,12 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class GrandFather extends DecentRole implements Runnable{
+public class GrandFather extends DecentRole implements Runnable, Serializable{
     public GrandFather(int x, int y, Field field) {
-        super(x, y, field);
+        super(x, y, field, "grandfather-right.png");
 
         URL loc = this.getClass().getClassLoader().getResource("grandfather-right.png");
         ImageIcon iia = new ImageIcon(loc);
@@ -17,8 +18,28 @@ public class GrandFather extends DecentRole implements Runnable{
     @Override
     public void setAlive(boolean isAlive) {
         super.setAlive(isAlive);
-        if (!isAlive)
-            setImage(new ImageIcon(getClass().getClassLoader().getResource("grandfather-dead.png")).getImage());
+        if (!isAlive) {
+            imageName = "grandfather-dead.png";
+            setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
+        }
+    }
+
+    @Override
+    public boolean moveLeft() {
+        if (orientation == Orientation.Right) {
+            imageName = "grandfather-left.png";
+            setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
+        }
+        return super.moveLeft();
+    }
+
+    @Override
+    public boolean moveRight() {
+        if (orientation == Orientation.Left) {
+            imageName = "grandfather-right.png";
+            setImage(new ImageIcon(getClass().getClassLoader().getResource(imageName)).getImage());
+        }
+        return super.moveRight();
     }
 
     @Override

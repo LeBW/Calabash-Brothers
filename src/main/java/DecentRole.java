@@ -1,9 +1,10 @@
 import javax.swing.*;
+import java.io.Serializable;
 import java.util.Random;
 
-public abstract class DecentRole extends Creature {
-    public DecentRole(int x, int y, Field field) {
-        super(x, y, field);
+public abstract class DecentRole extends Creature implements Serializable{
+    public DecentRole(int x, int y, Field field, String imageName) {
+        super(x, y, field, imageName);
         orientation = Orientation.Right;
     }
 
@@ -27,6 +28,7 @@ public abstract class DecentRole extends Creature {
                 field.repaint();
             } catch (Exception e) {
                 System.out.println(e);
+                Thread.currentThread().interrupt();
             } finally {
                 setInBattle(false);
                 creature.setInBattle(false);

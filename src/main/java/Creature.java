@@ -1,14 +1,19 @@
-public abstract class Creature extends Thing2D{
-    protected Field field;
-    public Creature(int x, int y, Field field) {
+import javax.swing.*;
+import java.io.Serializable;
+
+public abstract class Creature extends Thing2D implements Serializable{
+    protected transient Field field;
+    public Creature(int x, int y, Field field, String imageName) {
         super(x, y);
         this.field = field;
+        this.imageName = imageName;
     }
     //生物特有的属性
     enum Orientation { Left, Right}
     Orientation orientation;    //面朝的方向
     boolean isInBattle = false;   //是否在战斗中
     boolean isAlive = true;   //是否还活着
+    String imageName;
 
     //生物移动函数
     public boolean moveUp() {
@@ -41,6 +46,12 @@ public abstract class Creature extends Thing2D{
         }
         else return false;
     }
+    public void readFromLine(String string) {
+        String[] arr = string.split(" ");
+        setX(Integer.parseInt(arr[0]));
+        setY(Integer.parseInt(arr[1]));
+        setImage(new ImageIcon(getClass().getClassLoader().getResource(arr[2])).getImage());
+    }
     //距另一个生物的距离
     public int distanceTo(Creature creature) {
         return Math.abs(x() - creature.x()) + Math.abs(y() - creature.y());
@@ -53,5 +64,10 @@ public abstract class Creature extends Thing2D{
     }
     public void startWarWith(Creature creature) {
 
+    }
+
+    @Override
+    public String toString() {
+        return x() + " " + y() + " " + imageName + "\n";
     }
 }
